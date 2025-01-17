@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
+    <title>David John - Personal Website</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,30 +11,64 @@
             padding: 0;
             background-color: #edf6f9;
             color: #333;
+            line-height: 1.6;
         }
         header {
             background: #006d77;
             color: #fff;
-            padding: 1rem;
+            padding: 2rem;
             text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         nav {
             display: flex;
             justify-content: center;
             background: #83c5be;
-            padding: 0.5rem;
+            padding: 1rem;
+            transition: background-color 0.3s;
         }
         nav a {
             color: #fff;
             text-decoration: none;
-            margin: 0 1rem;
+            margin: 0 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
         nav a:hover {
-            text-decoration: underline;
+            background-color: #006d77;
         }
         main {
+            max-width: 800px;
+            margin: 0 auto;
             padding: 2rem;
+            margin-bottom: 100px;
+        }
+        .profile-section {
             text-align: center;
+            margin-bottom: 3rem;
+        }
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            background-color: #83c5be;
+        }
+        .social-links {
+            margin: 2rem 0;
+        }
+        .social-links a {
+            margin: 0 1rem;
+            color: #006d77;
+            text-decoration: none;
+        }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
         }
         footer {
             background: #333;
@@ -46,23 +79,56 @@
             bottom: 0;
             width: 100%;
         }
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                margin: 0.5rem 0;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to My Website</h1>
+        <h1>David John</h1>
     </header>
     <nav>
-        <a href="#">Home</a>
-        <a href="#">About Me</a>
-        <a href="#">Contact</a>
+        <a href="#home">Home</a>
+        <a href="#about">About Me</a>
+        <a href="#portfolio">Portfolio</a>
+        <a href="#contact">Contact</a>
     </nav>
     <main>
-        <h1>David John</h1>
-        <p>This is a simple website created with HTML and CSS. Customize it as you like!</p>
+        <section class="profile-section">
+            <img src="davidjohn.jpg" alt="David John" class="profile-image">
+            <h2>Hello, I'm David</h2>
+            <p>I am passionate about cyber security and other computer science topics. 
+                Here, I document my journey in becoming a professional in this field.</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/in/david-john-25127a233/linkedin">LinkedIn</a>
+                <a href="https://github.com/DGJohn1">GitHub</a>
+            </div>
+        </section>
+        <section id="about" class="content-section">
+            <h2>About Me</h2>
+            <p>
+                I am a 20 year old computer science major, specializing in cyber security. 
+                Along with taking college courses, I am learning more about cybersecurity topics through
+                CTFs, such as hackthebox and picoCTF, and the tryhackme modules. I really like it so far
+                and hope to continue my studies to become better in this field. In my free time, I like to draw, 
+                play video games with my friends, and play instruments.
+            </p>
+        </section>
+        <section id="contact" class="content-section">
+            <h2>Get in Touch</h2>
+            <p>Interested in working together? Let's connect!</p>
+            <p>Email: contact@davidjohn.com</p>
+        </section>
     </main>
     <footer>
-        <p>&copy; 2025 My Website. All rights reserved.</p>
+        <p>&copy; 2025 David John. All rights reserved.</p>
     </footer>
 </body>
 </html>
