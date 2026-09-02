@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>David John - Personal Website</title>
+    <title>Example CTF Writeup - David John</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,33 +37,20 @@
         nav a:hover {
             background-color: #006d77;
         }
-        nav a.active {
-            background-color: #006d77;
-        }
         main {
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem;
             margin-bottom: 100px;
         }
-        .profile-section {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        .profile-image {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            margin-bottom: 1rem;
-            background-color: #83c5be;
-        }
-        .social-links {
-            margin: 2rem 0;
-        }
-        .social-links a {
-            margin: 0 1rem;
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
             color: #006d77;
             text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
         }
         .content-section {
             background: white;
@@ -71,6 +58,24 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: #006d77;
+        }
+        .content-section pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .writeup-tags span {
+            display: inline-block;
+            background: #edf6f9;
+            color: #006d77;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
         }
         footer {
             background: #333;
@@ -97,30 +102,35 @@
         <h1>David John</h1>
     </header>
     <nav>
-        <a href="index.html" class="active">Home</a>
-        <a href="writeups.html">Writeups</a>
-        <a href="#contact">Contact</a>
+        <a href="../index.html">Home</a>
+        <a href="../index.html#about">About Me</a>
+        <a href="../writeups.html">Writeups</a>
+        <a href="../index.html#contact">Contact</a>
     </nav>
     <main>
-        <section class="profile-section">
-            <img src="davidjohn.jpg" alt="David John" class="profile-image">
-            <h2>Hello, I'm David</h2>
-            <p>I am passionate about cyber security and other computer science topics.
-                Here, I document my journey in becoming a professional in this field.</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/david-john-25127a233/linkedin">LinkedIn</a>
-                <a href="https://github.com/DGJohn1">GitHub</a>
+        <a class="back-link" href="../writeups.html">&larr; Back to all writeups</a>
+        <section class="content-section">
+            <h2>Example CTF Writeup</h2>
+            <div class="writeup-tags">
+                <span>HackTheBox</span>
+                <span>Web</span>
+                <span>Easy</span>
             </div>
-        </section>
-        <section id="about" class="content-section">
-            <h2>About Me</h2>
-            <p>
-                I am a 21 year old computer science major graduate and a red-team enthusiast.
-                Along with my Internship at WakeMed Hospital systems, I am learning more about cybersecurity topics through
-                CTFs, such as hackthebox, tryhackme, and OffSec training modules and lab exercises. I really like it so far
-                and hope to continue my studies to become better in this field. In my free time, I like to draw,
-                play video games with my friends, and play instruments.
-            </p>
+            <h3>Overview</h3>
+            <p>Brief summary of the challenge or box: what it is, the platform, and the general goal.</p>
+
+            <h3>Enumeration</h3>
+            <p>Describe recon steps, tools used, and what was discovered.</p>
+            <pre>nmap -sC -sV -p- 10.10.10.10</pre>
+
+            <h3>Exploitation</h3>
+            <p>Walk through how the vulnerability was identified and exploited.</p>
+
+            <h3>Privilege Escalation</h3>
+            <p>Describe the path taken to escalate privileges, if applicable.</p>
+
+            <h3>Lessons Learned</h3>
+            <p>Key takeaways from the challenge.</p>
         </section>
     </main>
     <footer>
