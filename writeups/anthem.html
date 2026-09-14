@@ -137,66 +137,66 @@
             <h3>Enumeration</h3>
             <p>I had to adjust my nmap scan since the first scan was unfruitful.</p>
             <pre>nmap -Pn -sV -A -v 10.201.59.224</pre>
-            <img src="images/anthem/anthem-nmap-1.png" alt="Nmap scan results">
+            <img src="../images/anthem/anthem-nmap-1.png" alt="Nmap scan results">
             <p>Windows. Port 80 is still http, but instead of 22 being up for ssh, the remote connection port is 3389. We will need to gather credentials for that, the remote connection being the final step.</p>
             <p>Going to port 80 we see a normal website blog.</p>
-            <img src="images/anthem/anthem-website-1.png" alt="Website blog homepage">
+            <img src="../images/anthem/anthem-website-1.png" alt="Website blog homepage">
             <p>A quick check on /robots.txt reveals that there are a few domains that are blocked and the plaintext</p>
             <pre>UmbracoIsTheBest!</pre>
-            <img src="images/anthem/anthem-robots-1.png" alt="robots.txt contents">
+            <img src="../images/anthem/anthem-robots-1.png" alt="robots.txt contents">
             <p>But, this gives us some information as to what the CMS is. Although, this information won't be particularly useful since the box specified that we will not be using any login information for the CMS.</p>
             <p>The DirBuster report doesn't have significant results, so manual enumeration on the website itself is my next step.</p>
-            <img src="images/anthem/anthem-dirbuster-1.png" alt="DirBuster scan results">
+            <img src="../images/anthem/anthem-dirbuster-1.png" alt="DirBuster scan results">
 
             <h3>Flags</h3>
             <p>Scrolling down, I see the author, Jane Doe. Clicking her name sends me to her profile, where I find a flag.</p>
             <h4>Flag 1</h4>
-            <img src="images/anthem/anthem-flag-1.png" alt="Flag 1 found on author profile">
+            <img src="../images/anthem/anthem-flag-1.png" alt="Flag 1 found on author profile">
             <p>We find a few more flags in the webpage source code.</p>
             <h4>Flag 2</h4>
-            <img src="images/anthem/anthem-flag-2.png" alt="Flag 2 found in page source">
+            <img src="../images/anthem/anthem-flag-2.png" alt="Flag 2 found in page source">
             <h4>Flag 3</h4>
-            <img src="images/anthem/anthem-flag-3.png" alt="Flag 3 found in page source">
+            <img src="../images/anthem/anthem-flag-3.png" alt="Flag 3 found in page source">
             <h4>Flag 4</h4>
-            <img src="images/anthem/anthem-flag-4.png" alt="Flag 4 found in page source">
+            <img src="../images/anthem/anthem-flag-4.png" alt="Flag 4 found in page source">
             <p>After checking out the Umbraco subdomain, I find a login but, again, it won't be very useful for me.</p>
-            <img src="images/anthem/anthem-umbraco-login-1.png" alt="Umbraco CMS login page">
+            <img src="../images/anthem/anthem-umbraco-login-1.png" alt="Umbraco CMS login page">
             <p>Reading the contents of the website for clues, I see something particularly interesting.</p>
-            <img src="images/anthem/anthem-clue-1.png" alt="Interesting clue found on the website">
+            <img src="../images/anthem/anthem-clue-1.png" alt="Interesting clue found on the website">
             <p>Here, we can see how this company formats their emails. This could potentially help us login to the remote software by using the initials of someone's name. Clearly this email belongs to Jane Doe, but it's been shortened to <a href="mailto:JD@anthem.com">JD@anthem.com</a>.</p>
-            <img src="images/anthem/anthem-email-format-1.png" alt="Company email format convention">
+            <img src="../images/anthem/anthem-email-format-1.png" alt="Company email format convention">
             <p>This seems very cryptic and esoteric. A quick Google search brings up this wiki page.</p>
-            <img src="images/anthem/anthem-wiki-search-1.png" alt="Google search leading to a wiki page">
+            <img src="../images/anthem/anthem-wiki-search-1.png" alt="Google search leading to a wiki page">
             <p>Solomon Grundy is a new name we haven't seen before. And since the post was about their "beloved admin," it is more than possible that it could work. Since we already have a password, we can try and do a remote connection request using these credentials.</p>
 
             <h3>Remote Login</h3>
-            <img src="images/anthem/anthem-remote-login-1.png" alt="RDP login attempt">
+            <img src="../images/anthem/anthem-remote-login-1.png" alt="RDP login attempt">
             <pre>xfreerdp3 /u:SG /p:UmbracoIsTheBest! /v:anthem.com</pre>
             <p>For this to work, I have to put the IP into my /etc/hosts file.</p>
             <p>After the Windows VM booted up, the login attempt was a success!</p>
-            <img src="images/anthem/anthem-rdp-success-1.png" alt="Successful RDP login">
-            <img src="images/anthem/anthem-user-flag-1.png" alt="User flag">
+            <img src="../images/anthem/anthem-rdp-success-1.png" alt="Successful RDP login">
+            <img src="../images/anthem/anthem-user-flag-1.png" alt="User flag">
 
             <h3>Privilege Escalation</h3>
             <p>The user flag done, now time to move on to the root flag. I immediately navigate to the file explorer and into 'This PC'.</p>
 
             <h4>Hidden Files</h4>
-            <img src="images/anthem/anthem-hidden-files-1.png" alt="Enabling view of hidden files">
+            <img src="../images/anthem/anthem-hidden-files-1.png" alt="Enabling view of hidden files">
             <p>I check the box for hidden files and I enter the hidden file named 'backup.' Here, I see a file called 'restore.' The only problem is, I can't actually access the file without an administrator password. Unfortunately, trying out 'UmbracoIsTheBest!' doesn't work.</p>
-            <img src="images/anthem/anthem-access-denied-1.png" alt="Access denied prompt on restore file">
+            <img src="../images/anthem/anthem-access-denied-1.png" alt="Access denied prompt on restore file">
 
             <h4>Permission Editing</h4>
             <p>Luckily, it looks like we can go into the permissions panel under the properties tab for this file and edit who has permissions to view it.</p>
-            <img src="images/anthem/anthem-permissions-1.png" alt="File permissions panel">
+            <img src="../images/anthem/anthem-permissions-1.png" alt="File permissions panel">
             <p>Going deeper, we can add SG (the user I am logged in on) to the group of people who can access the file. Saving these preferences and opening the file again gives us this notepad.</p>
-            <img src="images/anthem/anthem-notepad-1.png" alt="Notepad file revealing a password">
+            <img src="../images/anthem/anthem-notepad-1.png" alt="Notepad file revealing a password">
             <p>A password. Now, we can login as the admin.</p>
 
             <h4>Admin</h4>
-            <img src="images/anthem/anthem-admin-login-1.png" alt="Logging in as admin">
+            <img src="../images/anthem/anthem-admin-login-1.png" alt="Logging in as admin">
 
             <h4>Final Flag</h4>
-            <img src="images/anthem/anthem-root-flag-1.png" alt="Root flag">
+            <img src="../images/anthem/anthem-root-flag-1.png" alt="Root flag">
         </section>
     </main>
     <footer>
