@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anthem Writeup - David John</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #edf6f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #006d77;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #83c5be;
+            padding: 1rem;
+            transition: background-color 0.3s;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover {
+            background-color: #006d77;
+        }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-bottom: 100px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #006d77;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: #006d77;
+        }
+        .content-section h3 {
+            color: #006d77;
+            margin-top: 2rem;
+        }
+        .content-section h4 {
+            color: #006d77;
+            margin-top: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .content-section pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+        .content-section img {
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 0.75rem 0;
+            display: block;
+        }
+        .writeup-tags span {
+            display: inline-block;
+            background: #edf6f9;
+            color: #006d77;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>David John</h1>
+    </header>
+    <nav>
+        <a href="../index.html">Home</a>
+        <a href="../index.html#about">About Me</a>
+        <a href="../writeups.html">Writeups</a>
+        <a href="../index.html#contact">Contact</a>
+    </nav>
+    <main>
+        <a class="back-link" href="../writeups.html">&larr; Back to all writeups</a>
+        <section class="content-section">
+            <h2>Anthem</h2>
+            <div class="writeup-tags">
+                <span>Windows</span>
+                <span>RDP</span>
+                <span>Web Enumeration</span>
+            </div>
+
+            <h3>Enumeration</h3>
+            <p>I had to adjust my nmap scan since the first scan was unfruitful.</p>
+            <pre>nmap -Pn -sV -A -v 10.201.59.224</pre>
+            <img src="images/anthem/anthem-nmap-1.png" alt="Nmap scan results">
+            <p>Windows. Port 80 is still http, but instead of 22 being up for ssh, the remote connection port is 3389. We will need to gather credentials for that, the remote connection being the final step.</p>
+            <p>Going to port 80 we see a normal website blog.</p>
+            <img src="images/anthem/anthem-website-1.png" alt="Website blog homepage">
+            <p>A quick check on /robots.txt reveals that there are a few domains that are blocked and the plaintext</p>
+            <pre>UmbracoIsTheBest!</pre>
+            <img src="images/anthem/anthem-robots-1.png" alt="robots.txt contents">
+            <p>But, this gives us some information as to what the CMS is. Although, this information won't be particularly useful since the box specified that we will not be using any login information for the CMS.</p>
+            <p>The DirBuster report doesn't have significant results, so manual enumeration on the website itself is my next step.</p>
+            <img src="images/anthem/anthem-dirbuster-1.png" alt="DirBuster scan results">
+
+            <h3>Flags</h3>
+            <p>Scrolling down, I see the author, Jane Doe. Clicking her name sends me to her profile, where I find a flag.</p>
+            <h4>Flag 1</h4>
+            <img src="images/anthem/anthem-flag-1.png" alt="Flag 1 found on author profile">
+            <p>We find a few more flags in the webpage source code.</p>
+            <h4>Flag 2</h4>
+            <img src="images/anthem/anthem-flag-2.png" alt="Flag 2 found in page source">
+            <h4>Flag 3</h4>
+            <img src="images/anthem/anthem-flag-3.png" alt="Flag 3 found in page source">
+            <h4>Flag 4</h4>
+            <img src="images/anthem/anthem-flag-4.png" alt="Flag 4 found in page source">
+            <p>After checking out the Umbraco subdomain, I find a login but, again, it won't be very useful for me.</p>
+            <img src="images/anthem/anthem-umbraco-login-1.png" alt="Umbraco CMS login page">
+            <p>Reading the contents of the website for clues, I see something particularly interesting.</p>
+            <img src="images/anthem/anthem-clue-1.png" alt="Interesting clue found on the website">
+            <p>Here, we can see how this company formats their emails. This could potentially help us login to the remote software by using the initials of someone's name. Clearly this email belongs to Jane Doe, but it's been shortened to <a href="mailto:JD@anthem.com">JD@anthem.com</a>.</p>
+            <img src="images/anthem/anthem-email-format-1.png" alt="Company email format convention">
+            <p>This seems very cryptic and esoteric. A quick Google search brings up this wiki page.</p>
+            <img src="images/anthem/anthem-wiki-search-1.png" alt="Google search leading to a wiki page">
+            <p>Solomon Grundy is a new name we haven't seen before. And since the post was about their "beloved admin," it is more than possible that it could work. Since we already have a password, we can try and do a remote connection request using these credentials.</p>
+
+            <h3>Remote Login</h3>
+            <img src="images/anthem/anthem-remote-login-1.png" alt="RDP login attempt">
+            <pre>xfreerdp3 /u:SG /p:UmbracoIsTheBest! /v:anthem.com</pre>
+            <p>For this to work, I have to put the IP into my /etc/hosts file.</p>
+            <p>After the Windows VM booted up, the login attempt was a success!</p>
+            <img src="images/anthem/anthem-rdp-success-1.png" alt="Successful RDP login">
+            <img src="images/anthem/anthem-user-flag-1.png" alt="User flag">
+
+            <h3>Privilege Escalation</h3>
+            <p>The user flag done, now time to move on to the root flag. I immediately navigate to the file explorer and into 'This PC'.</p>
+
+            <h4>Hidden Files</h4>
+            <img src="images/anthem/anthem-hidden-files-1.png" alt="Enabling view of hidden files">
+            <p>I check the box for hidden files and I enter the hidden file named 'backup.' Here, I see a file called 'restore.' The only problem is, I can't actually access the file without an administrator password. Unfortunately, trying out 'UmbracoIsTheBest!' doesn't work.</p>
+            <img src="images/anthem/anthem-access-denied-1.png" alt="Access denied prompt on restore file">
+
+            <h4>Permission Editing</h4>
+            <p>Luckily, it looks like we can go into the permissions panel under the properties tab for this file and edit who has permissions to view it.</p>
+            <img src="images/anthem/anthem-permissions-1.png" alt="File permissions panel">
+            <p>Going deeper, we can add SG (the user I am logged in on) to the group of people who can access the file. Saving these preferences and opening the file again gives us this notepad.</p>
+            <img src="images/anthem/anthem-notepad-1.png" alt="Notepad file revealing a password">
+            <p>A password. Now, we can login as the admin.</p>
+
+            <h4>Admin</h4>
+            <img src="images/anthem/anthem-admin-login-1.png" alt="Logging in as admin">
+
+            <h4>Final Flag</h4>
+            <img src="images/anthem/anthem-root-flag-1.png" alt="Root flag">
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 David John. All rights reserved.</p>
+    </footer>
+</body>
+</html>
