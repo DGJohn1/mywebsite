@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silver Platter Writeup - David John</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #edf6f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #006d77;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #83c5be;
+            padding: 1rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover { background-color: #006d77; }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-bottom: 100px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #006d77;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 { color: #006d77; }
+        .content-section h3 { color: #006d77; margin-top: 2rem; }
+        .content-section pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+        .content-section img {
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 0.75rem 0;
+            display: block;
+        }
+        .writeup-tags span {
+            display: inline-block;
+            background: #edf6f9;
+            color: #006d77;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav { flex-direction: column; align-items: center; }
+            nav a { margin: 0.5rem 0; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>David John</h1>
+    </header>
+    <nav>
+        <a href="../index.html">Home</a>
+        <a href="../writeups.html">Writeups</a>
+    </nav>
+    <main>
+        <a class="back-link" href="../writeups.html">&larr; Back to all writeups</a>
+        <section class="content-section">
+            <h2>Silver Platter</h2>
+            <div class="writeup-tags">
+                <span>TryHackMe</span>
+                <span>Linux</span>
+                <span>Medium</span>
+            </div>
+
+            <h3>Enumeration</h3>
+            <pre>nmap -Pn -sV -A -v 10.10.239.154</pre>
+            <img src="../images/silverplatter/nmap-1.png" alt="Nmap scan results showing SSH and two web ports">
+            <p>The initial scan shows 3 open ports: SSH and two web ports. I start with subdomain enumeration on port 80 before even looking at it.</p>
+            <img src="../images/silverplatter/gobuster-80-1.png" alt="Subdomain enumeration on port 80">
+            <p>Nothing of interest so far. Checking the actual website turns up something useful — navigating to the contact tab reveals a username and a CMS name.</p>
+            <img src="../images/silverplatter/contact-tab-1.png" alt="Contact page revealing a username and the Silverpeas CMS name">
+            <p>Searching Silverpeas reveals some interesting vulnerabilities. This one in particular stands out.</p>
+            <img src="../images/silverplatter/silverpeas-cve-1.png" alt="Silverpeas CVE showing authentication bypass by removing the password field">
+            <p>It appears we can force a login with the default credentials by deleting the password field and sending the request via Burp Suite. There's no CMS login visible on port 80 yet, so let's enumerate port 8080.</p>
+
+            <h3>Port 8080</h3>
+            <img src="../images/silverplatter/gobuster-8080-1.png" alt="Subdomain enumeration on port 8080">
+            <p>Neither result gives anything meaningful — just errors. Still, this gives us a lead: we can try <code>/silverpeas</code> as a path to reach the CMS login page.</p>
+            <img src="../images/silverplatter/silverpeas-login-1.png" alt="Silverpeas CMS login page at /silverpeas">
+            <p>Sure enough, we're redirected to the CMS. Trying the default admin credentials produces an error as expected.</p>
+            <img src="../images/silverplatter/default-creds-error-1.png" alt="Login error with default credentials">
+            <p>Now we use Burp Suite to intercept the login request and remove the password field entirely before forwarding it.</p>
+            <img src="../images/silverplatter/burp-auth-bypass-1.png" alt="Burp Suite intercepting the login request and removing the password field">
+
+            <h3>Silverpeas Message CVE</h3>
+            <p>Once inside, another CVE for Silverpeas allows reading internal messages sent between admins by manipulating the message ID in the URL.</p>
+            <img src="../images/silverplatter/message-cve-1.png" alt="CVE allowing admin message enumeration via session ID in URL">
+            <p>Iterating through the message IDs in the URL eventually reveals something interesting.</p>
+            <img src="../images/silverplatter/ssh-creds-message-1.png" alt="Admin message containing SSH credentials for tim">
+            <p>We were able to obtain SSH credentials.</p>
+            <pre>Username: tim
+Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol</pre>
+
+            <h3>SSH as Tim</h3>
+            <img src="../images/silverplatter/ssh-tim-1.png" alt="SSH login as tim">
+            <img src="../images/silverplatter/ssh-tim-2.png" alt="Tim's home directory">
+            <img src="../images/silverplatter/user-flag-1.png" alt="User flag">
+            <p>First flag down. Now time to escalate privileges.</p>
+
+            <h3>Lateral Movement — Tim to Tyler</h3>
+            <img src="../images/silverplatter/tim-enum-1.png" alt="Searching for sudo binaries or SUID as tim — nothing found">
+            <p>Searching for useful binaries on Tim's account leads nowhere. I check Tim's group ID instead.</p>
+            <img src="../images/silverplatter/tim-id-1.png" alt="id output showing tim is in the admin group">
+            <p>Tim is in the admin group, which means he may be able to read log files. Navigating there reveals credentials in plaintext.</p>
+            <img src="../images/silverplatter/log-creds-1.png" alt="Log file containing Tyler's credentials in plaintext">
+            <pre>Username: tyler
+Password: _Zd_zx7N823/</pre>
+            <p>We can switch to Tyler using <code>su tyler</code>.</p>
+
+            <h3>Privilege Escalation — Tyler to Root</h3>
+            <img src="../images/silverplatter/su-tyler-1.png" alt="Switching to tyler with su">
+            <p>Tyler's home directory is empty. Checking <code>sudo -l</code> gives us all we need to know.</p>
+            <img src="../images/silverplatter/sudol-tyler-1.png" alt="sudo -l showing tyler has full sudo privileges">
+            <p>Tyler has unrestricted sudo privileges. From here we can sudo into root and navigate to <code>/root</code>.</p>
+            <img src="../images/silverplatter/root-flag-1.png" alt="Root flag">
+        </section>
+    </main>
+    <footer>
+        <p>2026 David John</p>
+    </footer>
+</body>
+</html>
