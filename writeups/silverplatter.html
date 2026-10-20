@@ -147,7 +147,7 @@ Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol</pre>
             <img src="../images/silverplatter/user-flag-1.png" alt="User flag">
             <p>First flag down. Now time to escalate privileges.</p>
 
-            <h3>Lateral Movement — Tim to Tyler</h3>
+            <h3>Lateral Movement - Tim to Tyler</h3>
             <img src="../images/silverplatter/tim-enum-1.png" alt="Searching for sudo binaries or SUID as tim — nothing found">
             <p>Searching for useful binaries on Tim's account leads nowhere. I check Tim's group ID instead.</p>
             <img src="../images/silverplatter/tim-id-1.png" alt="id output showing tim is in the admin group">
@@ -157,7 +157,7 @@ Password: cm0nt!md0ntf0rg3tth!spa$$w0rdagainlol</pre>
 Password: _Zd_zx7N823/</pre>
             <p>We can switch to Tyler using <code>su tyler</code>.</p>
 
-            <h3>Privilege Escalation — Tyler to Root</h3>
+            <h3>Privilege Escalation - Tyler to Root</h3>
             <img src="../images/silverplatter/su-tyler-1.png" alt="Switching to tyler with su">
             <p>Tyler's home directory is empty. Checking <code>sudo -l</code> gives us all we need to know.</p>
             <img src="../images/silverplatter/sudol-tyler-1.png" alt="sudo -l showing tyler has full sudo privileges">
