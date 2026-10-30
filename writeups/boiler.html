@@ -115,51 +115,51 @@
 
             <h3>Enumeration</h3>
             <pre>nmap -Pn -v -p- -sV 10.65.162.71</pre>
-            <img src="../images/boilerctf/nmap-1.png" alt="Nmap scan results">
+            <img src="../images/boiler/nmap-1.png" alt="Nmap scan results">
             <p>We have an FTP server and HTTP up on this host. Let's check out the FTP server first — it's accessible via anonymous login.</p>
-            <img src="../images/boilerctf/ftp-1.png" alt="FTP anonymous login">
+            <img src="../images/boiler/ftp-1.png" alt="FTP anonymous login">
             <p>There seems to be nothing here, but we can note the file upload capability for later. Let's check port 80. The nmap scan says it points to a default Apache page, so I don't have my hopes up, but I'll still check the page source for any clues.</p>
-            <img src="../images/boilerctf/apache-source-1.png" alt="Default Apache page source code">
+            <img src="../images/boiler/apache-source-1.png" alt="Default Apache page source code">
 
             <h3>GoBuster</h3>
             <p>Not finding anything interesting in the source, I pivot to subdirectory enumeration using GoBuster.</p>
             <pre>gobuster dir -u http://10.65.162.71:80/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt</pre>
-            <img src="../images/boilerctf/gobuster-1.png" alt="GoBuster scan results revealing /joomla">
+            <img src="../images/boiler/gobuster-1.png" alt="GoBuster scan results revealing /joomla">
             <p>We found an interesting subdirectory: <code>/joomla</code>. Upon arriving at the site, we're met with nothing out of the ordinary.</p>
-            <img src="../images/boilerctf/joomla-home-1.png" alt="Joomla site homepage">
+            <img src="../images/boiler/joomla-home-1.png" alt="Joomla site homepage">
 
             <h3>Further GoBuster Scans</h3>
             <p>I run another subdirectory scan, this time targeting <code>http://10.65.162.71:80/joomla</code>.</p>
-            <img src="../images/boilerctf/gobuster-joomla-1.png" alt="GoBuster scan of the /joomla path">
+            <img src="../images/boiler/gobuster-joomla-1.png" alt="GoBuster scan of the /joomla path">
             <p>The most interesting results are <code>/joomla/administrator</code> and <code>/_test</code>.</p>
-            <img src="../images/boilerctf/joomla-admin-1.png" alt="Joomla administrator login page">
+            <img src="../images/boiler/joomla-admin-1.png" alt="Joomla administrator login page">
             <p>This is the Joomla CMS administrator login page. I tried to find a relevant CVE, but no luck. Default credentials also didn't work, so let's look for creds elsewhere. I head to <code>/_test</code> to see what it is.</p>
-            <img src="../images/boilerctf/test-page-1.png" alt="/_test page running sar2html">
+            <img src="../images/boiler/test-page-1.png" alt="/_test page running sar2html">
 
             <h3>sar2html Vulnerability</h3>
             <p>We're met with a page running sar2html. Researching it on ExploitDB reveals a useful exploit.</p>
-            <img src="../images/boilerctf/exploitdb-1.png" alt="ExploitDB entry for sar2html">
+            <img src="../images/boiler/exploitdb-1.png" alt="ExploitDB entry for sar2html">
             <p>Using this, we can exploit the <code>plot</code> parameter in the URL to achieve remote code execution.</p>
-            <img src="../images/boilerctf/rce-ls-1.png" alt="RCE via sar2html plot parameter — listing directory">
+            <img src="../images/boiler/rce-ls-1.png" alt="RCE via sar2html plot parameter — listing directory">
             <p>We can execute arbitrary commands through the URL. Listing the current directory reveals a <code>log.txt</code> file. Printing its contents gives us a username and password for an SSH session.</p>
 
             <h3>SSH</h3>
             <p>Going back to the nmap scan, we can see SSH is running on port 55007.</p>
             <pre>ssh 10.65.162.71 -p 55007</pre>
-            <img src="../images/boilerctf/ssh-1.png" alt="SSH login with credentials from log.txt">
+            <img src="../images/boiler/ssh-1.png" alt="SSH login with credentials from log.txt">
 
             <h3>Privilege Escalation — SUID Find</h3>
             <p>After failing to find anything useful via <code>sudo -l</code>, I check for SUID binaries.</p>
-            <img src="../images/boilerctf/suid-1.png" alt="SUID binary scan results">
+            <img src="../images/boiler/suid-1.png" alt="SUID binary scan results">
             <p>The most interesting result is the <code>find</code> binary. Checking GTFOBins confirms a SUID exploit for it.</p>
-            <img src="../images/boilerctf/gtfobins-find-1.png" alt="GTFOBins entry for find SUID">
+            <img src="../images/boiler/gtfobins-find-1.png" alt="GTFOBins entry for find SUID">
             <pre>find . -exec /bin/sh -p \; -quit</pre>
             <p>Running this gives us a root shell.</p>
 
             <h3>Root</h3>
-            <img src="../images/boilerctf/root-shell-1.png" alt="Root shell obtained">
+            <img src="../images/boiler/root-shell-1.png" alt="Root shell obtained">
             <p>Navigating to the root directory and catting the flag file.</p>
-            <img src="../images/boilerctf/root-flag-1.png" alt="Root flag">
+            <img src="../images/boiler/root-flag-1.png" alt="Root flag">
         </section>
     </main>
     <footer>

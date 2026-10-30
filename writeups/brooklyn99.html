@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brooklyn Nine Nine Writeup - David John</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #edf6f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #006d77;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #83c5be;
+            padding: 1rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover { background-color: #006d77; }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-bottom: 100px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #006d77;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 { color: #006d77; }
+        .content-section h3 { color: #006d77; margin-top: 2rem; }
+        .content-section pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+        .content-section img {
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 0.75rem 0;
+            display: block;
+        }
+        .writeup-tags span {
+            display: inline-block;
+            background: #edf6f9;
+            color: #006d77;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav { flex-direction: column; align-items: center; }
+            nav a { margin: 0.5rem 0; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>David John</h1>
+    </header>
+    <nav>
+        <a href="../index.html">Home</a>
+        <a href="../writeups.html">Writeups</a>
+    </nav>
+    <main>
+        <a class="back-link" href="../writeups.html">&larr; Back to all writeups</a>
+        <section class="content-section">
+            <h2>Brooklyn Nine Nine</h2>
+            <div class="writeup-tags">
+                <span>TryHackMe</span>
+                <span>Linux</span>
+                <span>Steganography</span>
+                <span>Easy</span>
+            </div>
+
+            <h3>Enumeration</h3>
+            <pre>nmap -sV -T4 -A 10.10.142.255</pre>
+            <img src="../images/brooklyn99/nmap-1.png" alt="Nmap scan results">
+            <p>From this we can see a few things:</p>
+            <ul>
+                <li>FTP server with anonymous login</li>
+                <li>SSH</li>
+                <li>HTTP webserver</li>
+            </ul>
+            <p>For now, let's see the website.</p>
+            <img src="../images/brooklyn99/website-1.png" alt="Website homepage">
+            <p>Looking further into the source code for this webpage, we're given a big hint.</p>
+            <img src="../images/brooklyn99/source-hint-1.png" alt="Source code hint about a hidden image">
+            <p>There seems to be something hidden in an image, and the only image we currently have is the one on the main page.</p>
+            <img src="../images/brooklyn99/main-image-1.png" alt="Main page image">
+
+            <h3>Steganography</h3>
+            <p>I quickly check the FTP server, only to find nothing useful. I download the image and start analyzing it.</p>
+            <img src="../images/brooklyn99/ftp-check-1.png" alt="FTP check — nothing useful found">
+            <p>Nothing suspicious there. I look online for steganography tools and land on <code>stegcracker</code>.</p>
+            <img src="../images/brooklyn99/stegcracker-setup-1.png" alt="Setting up stegcracker on the image">
+            <p>I run a password crack to see if I can break it using rockyou.txt.</p>
+            <img src="../images/brooklyn99/stegcracker-run-1.png" alt="Running stegcracker with rockyou.txt">
+            <p>Successfully cracking the password gives us login information for <code>holt</code>.</p>
+
+            <h3>SSH</h3>
+            <p>Time to SSH in.</p>
+            <img src="../images/brooklyn99/ssh-holt-1.png" alt="SSH login as holt">
+            <p>We're in.</p>
+            <img src="../images/brooklyn99/user-flag-1.png" alt="User flag">
+
+            <h3>Privilege Escalation — Nano</h3>
+            <p>User flag out of the way, let's see what privileges holt has via sudo.</p>
+            <img src="../images/brooklyn99/sudol-1.png" alt="sudo -l output showing nano is allowed">
+            <p>Interesting — we can abuse a GTFOBins technique for <code>nano</code> to escalate privileges.</p>
+            <pre>sudo nano
+^R^X sh 1>&0 2>&0</pre>
+            <img src="../images/brooklyn99/nano-gtfobins-1.png" alt="Using the nano GTFOBins escape sequence">
+            <img src="../images/brooklyn99/nano-gtfobins-2.png" alt="Nano command execution prompt">
+            <img src="../images/brooklyn99/root-shell-1.png" alt="Root shell obtained via nano">
+
+            <h3>Root</h3>
+            <p>I am now successfully root. I navigate to the root directory and retrieve the root flag.</p>
+            <img src="../images/brooklyn99/root-flag-1.png" alt="Root flag">
+        </section>
+    </main>
+    <footer>
+        <p>2026 David John</p>
+    </footer>
+</body>
+</html>

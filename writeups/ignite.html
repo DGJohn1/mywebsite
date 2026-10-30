@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuelCMS Writeup - David John</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #edf6f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            background: #006d77;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #83c5be;
+            padding: 1rem;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav a:hover { background-color: #006d77; }
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            margin-bottom: 100px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #006d77;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 { color: #006d77; }
+        .content-section h3 { color: #006d77; margin-top: 2rem; }
+        .content-section pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+        .content-section img {
+            max-width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin: 0.75rem 0;
+            display: block;
+        }
+        .writeup-tags span {
+            display: inline-block;
+            background: #edf6f9;
+            color: #006d77;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            nav { flex-direction: column; align-items: center; }
+            nav a { margin: 0.5rem 0; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>David John</h1>
+    </header>
+    <nav>
+        <a href="../index.html">Home</a>
+        <a href="../writeups.html">Writeups</a>
+    </nav>
+    <main>
+        <a class="back-link" href="../writeups.html">&larr; Back to all writeups</a>
+        <section class="content-section">
+            <h2>FuelCMS</h2>
+            <div class="writeup-tags">
+                <span>TryHackMe</span>
+                <span>Linux</span>
+                <span>FuelCMS</span>
+                <span>Easy</span>
+            </div>
+
+            <h3>Enumeration</h3>
+            <img src="../images/fuelcms/nmap-1.png" alt="Initial enumeration showing FuelCMS on port 80">
+            <p>Looks like we've got a FuelCMS instance running on port 80. A little subdomain enumeration lets us bypass the disallowed entry.</p>
+            <img src="../images/fuelcms/subdomain-enum-1.png" alt="Subdomain enumeration bypassing the disallowed path">
+            <p>Going to any of the directories after <code>/fuel/</code> sends us to the login page. Luckily, the home page on port 80 gives us the default login credentials.</p>
+            <img src="../images/fuelcms/default-creds-1.png" alt="Default credentials found on the homepage">
+            <pre>user: admin
+pass: admin</pre>
+            <img src="../images/fuelcms/login-1.png" alt="Logging into FuelCMS with default credentials">
+            <p>After inputting the credentials, we're sent to the configuration page.</p>
+            <img src="../images/fuelcms/config-page-1.png" alt="FuelCMS configuration page after login">
+            <p>Searching around and failing to upload any reverse shells directly, I look into FuelCMS vulnerabilities instead. Sure enough, there's a shell spawner exploit for version 1.4.</p>
+            <img src="../images/fuelcms/exploit-1.png" alt="FuelCMS 1.4 shell spawner exploit">
+
+            <h3>Shell</h3>
+            <p>I set up a netcat listener to catch the shell.</p>
+            <img src="../images/fuelcms/nc-listener-1.png" alt="Netcat listener ready">
+            <img src="../images/fuelcms/exploit-run-1.png" alt="Running the FuelCMS exploit">
+            <p>We received the connection.</p>
+            <img src="../images/fuelcms/shell-caught-1.png" alt="Shell caught on the listener">
+
+            <h3>www-data</h3>
+            <p>Now we can stabilize the shell.</p>
+            <pre>python3 -c 'import pty;pty.spawn("/bin/bash")'</pre>
+            <p>Navigating to the home directory to find the first flag.</p>
+            <img src="../images/fuelcms/user-flag-1.png" alt="User flag found">
+            <p>First flag down. Now let's head back to <code>/var/www/html</code> since I haven't explored that area yet. Researching further on the original landing page, there's a location of interest at <code>/fuel/application/config</code>. Here, we find a file called <code>database.php</code>.</p>
+            <img src="../images/fuelcms/database-php-1.png" alt="database.php revealing root credentials">
+            <p>Interesting — there's a user <code>root</code> and a password <code>mememe</code>. Just to be sure, let's try to <code>su</code> into root with that password.</p>
+            <img src="../images/fuelcms/su-root-1.png" alt="su into root using credentials from database.php">
+            <p>Amazing.</p>
+
+            <h3>Root</h3>
+            <img src="../images/fuelcms/root-flag-1.png" alt="Root flag">
+            <p>Simply amazing.</p>
+        </section>
+    </main>
+    <footer>
+        <p>2026 David John</p>
+    </footer>
+</body>
+</html>
